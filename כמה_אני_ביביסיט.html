@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלון אובייקטיביות - בנימין נתניהו</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); }
+        .question { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; display: block; }
+        .options { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .option { flex: 1; text-align: center; min-width: 100px; }
+        label { display: block; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + label { background: var(--accent); color: white; border-color: var(--accent); }
+        button { display: block; width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; margin-top: 20px; }
+        #result { display: none; margin-top: 30px; padding: 20px; border-radius: 10px; background: #e8f4fd; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>שאלון בחינה עצמית: מדד האובייקטיביות</h1>
+    <p style="text-align: center;">דרג את הסכמתך עם ההיגדים הבאים (1 = מסכים מאוד, 5 = בכלל לא מסכים)</p>
+    
+    <form id="quizForm">
+        <div id="questionsContainer"></div>
+        <button type="button" onclick="calculateScore()">חשב תוצאה</button>
+    </form>
+
+    <div id="result">
+        <h2>התוצאה שלך: <span id="scoreValue"></span></h2>
+        <p id="resultText"></p>
+        <button onclick="location.reload()" style="background: #95a5a6; margin-top: 10px;">מלא מחדש</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        "כשאני שומע ביקורת או שבח על נתניהו, אני מיד חושב על האינטרס של הדובר לפני הטענה עצמה.",
+        "אני מתקשה למצוא אפילו החלטה אחת שנתניהו קיבל בקריירה שלו שהייתה הפוכה מהשקפתי.",
+        "אם כלי תקשורת שאני לא מעריך יפרסם תחקיר בנושא, אפסול אותו מראש כ'תעמולה'.",
+        "המניעים של נתניהו הם תמיד אישיים בלבד או תמיד טובת המדינה בלבד (אין שילוב).",
+        "כשאני רואה כותרת על נתניהו, אני מרגיש תגובה רגשית (כעס או הערצה) עוד לפני קריאת התוכן.",
+        "אני נוטה להסביר כשלים כ'נסיבות חיצוניות' והצלחות כ'מזל' (או להפך).",
+        "קשה לי להקשיב לפרשן שחושב הפוך ממני על נתניהו ליותר מ-2 דקות.",
+        "אני מאמין שמי שחושב הפוך ממני הוא בהכרח שטוף מוח או לא מבין את המציאות.",
+        "אם נתניהו יפרוש מחר, אני בטוח שהמדינה תעבור לגן עדן או תיהרס לחלוטין.",
+        "אני מרגיש צורך להגן על העמדה שלי בשיחות במקום לשאול שאלות להבנת הצד השני."
+    ];
+
+    const container = document.getElementById('questionsContainer');
+    questions.forEach((q, index) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `
+            <span class="question-text">${index + 1}. ${q}</span>
+            <div class="options">
+                ${[1, 2, 3, 4, 5].map(num => `
+                    <div class="option">
+                        <input type="radio" name="q${index}" value="${num}" id="q${index}_${num}" required>
+                        <label for="q${index}_${num}">${num === 1 ? '1 (מסכים מאוד)' : num === 5 ? '5 (בכלל לא)' : num}</label>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        container.appendChild(div);
+    });
+
+    function calculateScore() {
+        const form = document.getElementById('quizForm');
+        const formData = new FormData(form);
+        let score = 0;
+        let answered = 0;
+
+        for (let value of formData.values()) {
+            score += parseInt(value);
+            answered++;
+        }
+
+        if (answered < questions.length) {
+            alert("אנא ענה על כל השאלות");
+            return;
+        }
+
+        document.getElementById('quizForm').style.display = 'none';
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        document.getElementById('scoreValue').innerText = score;
+
+        let text = "";
+        if (score <= 20) text = "<b>אזור הלהט:</b> העמדה שלך רגשית מאוד. ייתכן שאתה בתוך 'תיבת תהודה' שמונעת ממך לראות מורכבות.";
+        else if (score <= 39) text = "<b>אזור המורכבות:</b> יש לך דעה מוצקה, אך אתה מודע לקיומן של זוויות אחרות ומסוגל להקשיב.";
+        else text = "<b>אזור הספקן:</b> אתה מפגין אובייקטיביות גבוהה ובוחן כל מקרה לגופו בצורה רציונלית.";
+        
+        document.getElementById('resultText').innerHTML = text;
+    }
+</script>
+</body>
+</html>
